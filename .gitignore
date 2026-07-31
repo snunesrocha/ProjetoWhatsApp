@@ -1,29 +1,9 @@
-# Ambiente Virtual
 .venv/
-
-# Python
 __pycache__/
 *.pyc
-*.pyo
-
-# Banco
-database/*.db
-
-# Logs
 logs/
-
-# Downloads
 downloads/
-
-# Variáveis de ambiente
-.env
-
-# VS Code
+session/
+database/*.db
 .vscode/
-
-# Playwright
-playwright-report/
-test-results/
-
-# Windows
-Thumbs.db
+.env
