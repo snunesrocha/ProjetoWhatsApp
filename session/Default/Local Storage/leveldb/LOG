@@ -1,3 +1,6 @@
-2026/07/31-17:47:11.799 103e8 Reusing MANIFEST E:\work\ProjetoWhatsApp\session\Default\Local Storage\leveldb/MANIFEST-000001
-2026/07/31-17:47:11.806 103e8 Recovering log #13
-2026/07/31-17:47:11.808 103e8 Reusing old log E:\work\ProjetoWhatsApp\session\Default\Local Storage\leveldb/000013.log 
+2026/07/31-18:42:33.873 9454 Reusing MANIFEST E:\work\ProjetoWhatsApp\session\Default\Local Storage\leveldb/MANIFEST-000001
+2026/07/31-18:42:33.882 9454 Recovering log #16
+2026/07/31-18:42:33.885 9454 Reusing old log E:\work\ProjetoWhatsApp\session\Default\Local Storage\leveldb/000016.log 
+2026/07/31-18:42:44.654 11500 Level-0 table #21: started
+2026/07/31-18:42:44.667 11500 Level-0 table #21: 15958 bytes OK
+2026/07/31-18:42:44.671 11500 Delete type=0 #16

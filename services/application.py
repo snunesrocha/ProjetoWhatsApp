@@ -17,6 +17,8 @@ from services.conversation_service import ConversationService
 from services.gallery_service import GalleryService
 from services.viewer_service import ViewerService
 from services.logger_service import LoggerService
+from services.downloader_service import DownloaderService
+
 
 
 
@@ -38,6 +40,7 @@ class Application:
 
 
         # Configuração dos logs
+
         LoggerService.configure()
 
 
@@ -73,6 +76,7 @@ class Application:
             self.browser
         )
 
+        self.downloader = DownloaderService()
 
 
     # ======================================================
@@ -125,6 +129,7 @@ class Application:
 
 
 
+
     # ======================================================
     # Inicialização
     # ======================================================
@@ -143,6 +148,7 @@ class Application:
 
 
 
+
     # ======================================================
     # Fluxo principal
     # ======================================================
@@ -150,6 +156,7 @@ class Application:
     def execute(
         self
     ):
+
 
 
         # ----------------------------------
@@ -164,11 +171,13 @@ class Application:
 
 
 
+
         # ----------------------------------
         # Login
         # ----------------------------------
 
         self.login.execute()
+
 
 
 
@@ -181,6 +190,7 @@ class Application:
             self.settings.CONVERSATION_NAME
 
         )
+
 
 
 
@@ -198,9 +208,9 @@ class Application:
 
 
 
+
         # ----------------------------------
         # TESTE VIEWER
-        # abre somente a primeira foto
         # ----------------------------------
 
         if medias:
@@ -211,9 +221,49 @@ class Application:
             )
 
 
-            self.viewer.test_media(
+
+            media = self.viewer.test_media(
                 medias[0]
             )
+
+
+            self.downloader.download(
+                media
+            )
+
+
+
+            # ======================================
+            # NOVO
+            # Recebe objeto retornado pelo Viewer
+            # ======================================
+
+            if media:
+
+
+                self.log.success(
+                    "Objeto de mídia recebido:"
+                )
+
+
+                self.log.info(
+                    f"Tipo: {media.get('type')}"
+                )
+
+
+                self.log.info(
+                    f"URL: {media.get('url')}"
+                )
+
+
+
+            else:
+
+
+                self.log.warning(
+                    "Viewer não retornou mídia."
+                )
+
 
 
         else:
@@ -222,6 +272,8 @@ class Application:
             self.log.warning(
                 "Nenhuma mídia encontrada."
             )
+
+
 
 
 
@@ -237,6 +289,7 @@ class Application:
         self.log.success(
             "Processamento finalizado."
         )
+
 
 
 
@@ -263,6 +316,8 @@ class Application:
 
 
 
+
+
         try:
 
 
@@ -274,6 +329,7 @@ class Application:
 
 
             pass
+
 
 
 
