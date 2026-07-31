@@ -6,7 +6,7 @@ Responsável pelo gerenciamento da autenticação no WhatsApp Web.
 
 from __future__ import annotations
 
-from playwright.sync_api import TimeoutError
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from constants.whatsapp_selectors import WhatsAppSelectors
 from services.browser_service import BrowserService
@@ -18,34 +18,35 @@ class LoginService:
     Serviço responsável pela autenticação.
     """
 
+
     def __init__(self, browser: BrowserService):
 
         self.browser = browser
 
         self.log = LoggerService.app()
 
-    # ---------------------------------------------------------
-    # Property
-    # ---------------------------------------------------------
 
     @property
     def page(self):
-        """
-        Sempre retorna a página atual do BrowserService.
-        Nunca mantém uma referência antiga.
-        """
 
         return self.browser.current_page
 
-    # ---------------------------------------------------------
-    # Sessão autenticada?
-    # ---------------------------------------------------------
 
     def is_logged(self) -> bool:
 
         self.log.debug(
             "Verificando se existe sessão autenticada..."
         )
+
+
+        if not self.page:
+
+            self.log.error(
+                "Página do navegador não inicializada."
+            )
+
+            return False
+
 
         try:
 
@@ -59,15 +60,15 @@ class LoginService:
 
             return True
 
-        except TimeoutError:
+
+        except PlaywrightTimeoutError:
 
             return False
 
-    # ---------------------------------------------------------
-    # Aguarda login
-    # ---------------------------------------------------------
+
 
     def wait_login(self) -> None:
+
 
         if self.is_logged():
 
@@ -77,53 +78,58 @@ class LoginService:
 
             return
 
+
+
         self.log.warning(
             "Login necessário."
         )
+
 
         self.log.info(
             "Aguardando leitura do QR Code..."
         )
 
+
         self.page.wait_for_selector(
 
             WhatsAppSelectors.SEARCH_BOX,
 
-            timeout=0
+            timeout=120000
 
         )
+
 
         self.log.success(
             "Login realizado."
         )
 
-    # ---------------------------------------------------------
-    # Aguarda Home
-    # ---------------------------------------------------------
+
 
     def wait_home(self) -> None:
+
 
         self.log.info(
             "Aguardando carregamento do WhatsApp..."
         )
 
+
         self.page.wait_for_selector(
 
             WhatsAppSelectors.SEARCH_BOX,
 
-            timeout=0
+            timeout=30000
 
         )
+
 
         self.log.success(
             "WhatsApp pronto."
         )
 
-    # ---------------------------------------------------------
-    # Fluxo completo
-    # ---------------------------------------------------------
+
 
     def execute(self) -> None:
+
 
         self.wait_login()
 

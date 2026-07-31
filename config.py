@@ -3,8 +3,10 @@ ProjetoWhatsApp
 
 Configuração central da aplicação.
 """
-
 from pathlib import Path
+import os
+
+from dotenv import load_dotenv
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -20,6 +22,11 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
+    )
+
+    CONVERSATION_NAME: str = os.getenv(
+        "CONVERSATION_NAME",
+        "Isadora😍😍😍"
     )
 
     #
