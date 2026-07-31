@@ -7,11 +7,14 @@ no WhatsApp Web.
 
 from __future__ import annotations
 
+
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
 
 from services.browser_service import BrowserService
 from services.logger_service import LoggerService
 from constants.whatsapp_selectors import WhatsAppSelectors
+
 
 
 class ConversationService:
@@ -20,28 +23,47 @@ class ConversationService:
     """
 
 
-    def __init__(self, browser: BrowserService):
+    def __init__(
+        self,
+        browser: BrowserService
+    ):
 
         self.browser = browser
 
         self.log = LoggerService.app()
 
 
+
     # ==========================================================
-    # Page atual
+    # Página atual do navegador
     # ==========================================================
 
     @property
     def page(self):
 
-        return self.browser.current_page
+        page = self.browser.current_page
+
+
+        if page is None:
+
+            raise RuntimeError(
+                "Página do WhatsApp não inicializada."
+            )
+
+
+        return page
+
 
 
     # ==========================================================
     # Fluxo principal
     # ==========================================================
 
-    def execute(self, conversation_name: str) -> None:
+    def execute(
+        self,
+        conversation_name: str
+    ) -> None:
+
 
         self.log.info(
             f"Abrindo conversa: {conversation_name}"
@@ -69,8 +91,9 @@ class ConversationService:
         )
 
 
+
     # ==========================================================
-    # Pesquisa conversa
+    # Pesquisar conversa
     # ==========================================================
 
     def search_conversation(
@@ -78,20 +101,27 @@ class ConversationService:
         conversation_name: str
     ):
 
+
         self.log.info(
             "Pesquisando conversa..."
         )
 
 
-        search = self.page.locator(
+        search_box = self.page.locator(
             WhatsAppSelectors.SEARCH_BOX
         )
 
 
-        search.click()
+        search_box.wait_for(
+            state="visible",
+            timeout=10000
+        )
 
 
-        search.fill(
+        search_box.click()
+
+
+        search_box.fill(
             conversation_name
         )
 
@@ -106,14 +136,16 @@ class ConversationService:
         )
 
 
+
     # ==========================================================
-    # Abrir conversa
+    # Abrir conversa encontrada
     # ==========================================================
 
     def open_conversation(
         self,
         conversation_name: str
     ):
+
 
         self.log.info(
             "Abrindo conversa..."
@@ -122,13 +154,28 @@ class ConversationService:
 
         try:
 
-            item = self.page.get_by_text(
-                conversation_name,
-                exact=True
+
+            # seletor mais específico
+            # evita clicar em textos internos
+            conversation = self.page.locator(
+                f"span[title='{conversation_name}']"
             ).first
 
 
-            item.click()
+
+            conversation.wait_for(
+                state="visible",
+                timeout=10000
+            )
+
+
+            conversation.click()
+
+
+
+            self.page.wait_for_timeout(
+                2000
+            )
 
 
             self.log.success(
@@ -136,57 +183,147 @@ class ConversationService:
             )
 
 
+
         except PlaywrightTimeoutError:
 
+
             self.log.error(
-                "Conversa não encontrada."
+                f"Conversa não encontrada: {conversation_name}"
             )
+
 
             raise
 
 
+
     # ==========================================================
-    # Abrir informações da conversa
+    # Abrir painel de informações
     # ==========================================================
 
-    def open_info_panel(self):
+    def open_info_panel(
+        self
+    ):
+
 
         self.log.info(
             "Abrindo informações da conversa..."
         )
 
 
-        self.page.get_by_test_id(
-            WhatsAppSelectors.CONVERSATION_INFO_HEADER
-        ).click()
+
+        try:
 
 
-        self.log.success(
-            "Painel de informações aberto."
-        )
+            info_header = self.page.get_by_test_id(
+                WhatsAppSelectors.CONVERSATION_INFO_HEADER
+            )
+
+
+            info_header.wait_for(
+                state="visible",
+                timeout=10000
+            )
+
+
+            info_header.click()
+
+
+
+            self.page.wait_for_timeout(
+                2000
+            )
+
+
+            self.log.success(
+                "Painel de informações aberto."
+            )
+
+
+
+        except PlaywrightTimeoutError:
+
+
+            self.log.error(
+                "Painel de informações não encontrado."
+            )
+
+
+            raise
+
 
 
     # ==========================================================
-    # Abrir aba mídia
+    # Abrir aba Mídia
     # ==========================================================
 
-    def open_media_tab(self):
+    def open_media_tab(
+        self
+    ):
+
 
         self.log.info(
             "Abrindo aba Mídia..."
         )
 
 
-        self.page.get_by_test_id(
-            WhatsAppSelectors.MEDIA_LINKS_DOCS
-        ).click()
+
+        try:
 
 
-        self.page.get_by_test_id(
-            WhatsAppSelectors.GALLERY_TAB_MEDIA
-        ).click()
+            media_button = self.page.get_by_test_id(
+                WhatsAppSelectors.MEDIA_LINKS_DOCS
+            )
 
 
-        self.log.success(
-            "Aba Mídia aberta."
-        )
+            media_button.wait_for(
+                state="visible",
+                timeout=10000
+            )
+
+
+            media_button.click()
+
+
+
+            self.page.wait_for_timeout(
+                2000
+            )
+
+
+
+            gallery_tab = self.page.get_by_test_id(
+                WhatsAppSelectors.GALLERY_TAB_MEDIA
+            )
+
+
+            gallery_tab.wait_for(
+                state="visible",
+                timeout=10000
+            )
+
+
+            gallery_tab.click()
+
+
+
+            self.page.wait_for_timeout(
+                3000
+            )
+
+
+
+            self.log.success(
+                "Aba Mídia aberta."
+            )
+
+
+
+        except PlaywrightTimeoutError:
+
+
+            self.log.error(
+                "Não foi possível abrir aba Mídia."
+            )
+
+
+            raise
