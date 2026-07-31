@@ -1,0 +1,1 @@
+arquivo = settings.PHOTO_PATH / "000123.jpg"

@@ -1,0 +1,15 @@
+2026/07/28-15:34:26.234 9794 Reusing MANIFEST E:\work\ProjetoIPHONE\session\profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/07/28-15:34:26.246 9794 Recovering log #16
+2026/07/28-15:34:26.249 9794 Reusing old log E:\work\ProjetoIPHONE\session\profile\Default\Local Storage\leveldb/000016.log 
+2026/07/28-15:34:36.977 9948 Level-0 table #20: started
+2026/07/28-15:34:36.983 9948 Level-0 table #20: 17905 bytes OK
+2026/07/28-15:34:36.985 9948 Delete type=0 #16
+2026/07/28-15:34:36.985 9948 Compacting 4@0 + 1@1 files
+2026/07/28-15:34:36.991 9948 Generated table #21@0: 174 keys, 9055 bytes
+2026/07/28-15:34:36.992 9948 Compacted 4@0 + 1@1 files => 9055 bytes
+2026/07/28-15:34:36.993 9948 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/07/28-15:34:36.993 9948 Delete type=2 #8
+2026/07/28-15:34:36.999 9948 Delete type=2 #11
+2026/07/28-15:34:36.999 9948 Delete type=2 #14
+2026/07/28-15:34:36.999 9948 Delete type=2 #17
+2026/07/28-15:34:36.999 9948 Delete type=2 #20

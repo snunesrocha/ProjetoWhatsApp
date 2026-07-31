@@ -1,0 +1,34 @@
+2026/07/28-15:34:26.955 9cc0 Reusing MANIFEST E:\work\ProjetoIPHONE\session\profile\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/07/28-15:34:26.956 9cc0 Recovering log #1170
+2026/07/28-15:34:27.001 9cc0 Reusing old log E:\work\ProjetoIPHONE\session\profile\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/001170.log 
+2026/07/28-15:34:31.597 9cc0 Level-0 table #1188: started
+2026/07/28-15:34:31.621 9cc0 Level-0 table #1188: 1301445 bytes OK
+2026/07/28-15:34:31.623 9cc0 Delete type=0 #1170
+2026/07/28-15:34:31.693 a030 Compacting 1@0 + 0@1 files
+2026/07/28-15:34:31.712 a030 Generated table #1189@0: 21647 keys, 466369 bytes
+2026/07/28-15:34:31.716 a030 Generated table #1190@0: 1180 keys, 100672 bytes
+2026/07/28-15:34:31.716 a030 Compacted 1@0 + 0@1 files => 567041 bytes
+2026/07/28-15:34:31.717 a030 compacted to: files[ 0 2 19 0 0 0 0 ]
+2026/07/28-15:34:31.817 a030 Compacting 1@1 + 5@2 files
+2026/07/28-15:34:31.841 a030 Generated table #1191@1: 5347 keys, 2148262 bytes
+2026/07/28-15:34:31.911 a030 Generated table #1192@1: 29784 keys, 2271352 bytes
+2026/07/28-15:34:31.966 a030 Generated table #1193@1: 23336 keys, 2239988 bytes
+2026/07/28-15:34:31.990 a030 Generated table #1194@1: 12665 keys, 2146013 bytes
+2026/07/28-15:34:32.007 a030 Generated table #1195@1: 12068 keys, 760314 bytes
+2026/07/28-15:34:32.007 a030 Compacted 1@1 + 5@2 files => 9565929 bytes
+2026/07/28-15:34:32.008 a030 compacted to: files[ 0 1 19 0 0 0 0 ]
+2026/07/28-15:34:32.009 a030 Delete type=2 #1188
+2026/07/28-15:34:32.027 9cc0 Compacting 1@1 + 14@2 files
+2026/07/28-15:34:32.054 9cc0 Generated table #1196@1: 5506 keys, 2127458 bytes
+2026/07/28-15:34:32.100 9cc0 Generated table #1197@1: 65335 keys, 2203059 bytes
+2026/07/28-15:34:32.162 9cc0 Generated table #1198@1: 95263 keys, 2246108 bytes
+2026/07/28-15:34:32.219 9cc0 Generated table #1199@1: 95683 keys, 2246372 bytes
+2026/07/28-15:34:32.286 9cc0 Generated table #1200@1: 87100 keys, 2238667 bytes
+2026/07/28-15:34:32.338 9cc0 Generated table #1201@1: 82392 keys, 2331565 bytes
+2026/07/28-15:34:32.388 9cc0 Generated table #1202@1: 44911 keys, 2210514 bytes
+2026/07/28-15:34:32.422 9cc0 Generated table #1203@1: 23966 keys, 2178347 bytes
+2026/07/28-15:34:32.443 9cc0 Generated table #1204@1: 2290 keys, 2152365 bytes
+2026/07/28-15:34:32.459 9cc0 Generated table #1205@1: 2125 keys, 2169712 bytes
+2026/07/28-15:34:32.463 9cc0 Generated table #1206@1: 214 keys, 229069 bytes
+2026/07/28-15:34:32.463 9cc0 Compacted 1@1 + 14@2 files => 22333236 bytes
+2026/07/28-15:34:32.464 9cc0 compacted to: files[ 0 0 16 0 0 0 0 ]
