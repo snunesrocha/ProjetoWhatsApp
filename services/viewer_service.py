@@ -7,7 +7,7 @@ e captura da mídia original.
 
 from __future__ import annotations
 
-import base64
+from urllib.parse import urlparse
 
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
@@ -17,6 +17,10 @@ from services.logger_service import LoggerService
 
 
 class ViewerService:
+    """
+    Serviço responsável pelo visualizador de mídia.
+    """
+
 
 
     def __init__(
@@ -30,6 +34,10 @@ class ViewerService:
 
 
 
+    # ==========================================================
+    # Página atual
+    # ==========================================================
+
     @property
     def page(self):
 
@@ -37,9 +45,9 @@ class ViewerService:
 
 
 
-    # ======================================================
-    # Teste mídia
-    # ======================================================
+    # ==========================================================
+    # Teste inicial
+    # ==========================================================
 
     def test_media(
         self,
@@ -52,13 +60,7 @@ class ViewerService:
         )
 
 
-        self.open_media(
-            media
-        )
-
-
-        result = self.extract_media()
-
+        result = self.open_media()
 
 
         if result:
@@ -75,7 +77,7 @@ class ViewerService:
 
 
             self.log.info(
-                f"Tamanho bytes: {len(result['data'])}"
+                f"URL: {result['url']}"
             )
 
 
@@ -83,7 +85,7 @@ class ViewerService:
 
 
             self.log.warning(
-                "Não foi possível extrair mídia."
+                "Nenhuma mídia encontrada."
             )
 
 
@@ -92,11 +94,9 @@ class ViewerService:
 
 
 
-
-
-    # ======================================================
-    # Abrir visualizador
-    # ======================================================
+    # ==========================================================
+    # Abrir mídia
+    # ==========================================================
 
     def open_media(
         self,
@@ -109,74 +109,85 @@ class ViewerService:
         )
 
 
-        card = self.get_first_media_card()
-
-
-
-        card.scroll_into_view_if_needed()
-
-
-
-        self.page.wait_for_timeout(
-            1000
-        )
-
-
-
         try:
 
 
-            self.log.info(
-                "Tentando clique normal..."
+            card = self.get_first_media_card()
+
+
+            card.scroll_into_view_if_needed()
+
+
+            self.page.wait_for_timeout(
+                1000
             )
 
 
-            card.click(
-                timeout=3000
+            try:
+
+
+                self.log.info(
+                    "Tentando clique normal..."
+                )
+
+
+                card.click(
+                    timeout=3000
+                )
+
+
+            except Exception:
+
+
+                self.log.warning(
+                    "Clique normal bloqueado. "
+                    "Executando clique JavaScript..."
+                )
+
+
+                card.evaluate(
+                    """
+                    element => element.click()
+                    """
+                )
+
+
+
+            self.wait_viewer()
+
+
+            self.log.success(
+                "Mídia aberta no visualizador."
             )
 
 
+            return self.get_original_media()
 
-        except Exception:
 
 
-            self.log.warning(
-                "Clique normal bloqueado. "
-                "Executando clique JavaScript..."
+        except Exception as error:
+
+
+            self.log.error(
+                "Erro ao abrir mídia."
             )
 
 
-            card.evaluate(
-                """
-                element => element.click()
-                """
-            )
-
-
-
-        self.page.wait_for_timeout(
-            3000
-        )
-
-
-
-        self.wait_viewer()
-
-
-
-        self.log.success(
-            "Mídia aberta no visualizador."
-        )
+            raise error
 
 
 
 
-
-    # ======================================================
-    # Primeiro card
-    # ======================================================
+    # ==========================================================
+    # Localizar card
+    # ==========================================================
 
     def get_first_media_card(self):
+
+
+        self.log.info(
+            "Localizando primeiro card de mídia..."
+        )
 
 
         cards = self.page.get_by_test_id(
@@ -187,7 +198,6 @@ class ViewerService:
         count = cards.count()
 
 
-
         self.log.info(
             f"Cards encontrados: {count}"
         )
@@ -196,10 +206,16 @@ class ViewerService:
 
         if count == 0:
 
+
             raise Exception(
                 "Nenhum card encontrado."
             )
 
+
+
+        self.log.info(
+            "Primeiro card selecionado."
+        )
 
 
         return cards.first
@@ -207,19 +223,28 @@ class ViewerService:
 
 
 
-
-    # ======================================================
-    # Aguarda viewer
-    # ======================================================
+    # ==========================================================
+    # Esperar viewer
+    # ==========================================================
 
     def wait_viewer(self):
+
+
+        self.log.info(
+            "Aguardando visualizador..."
+        )
+
 
 
         selectors = [
 
             '[data-testid="media-viewer-modal"]',
 
-            '[role="dialog"]'
+            '[role="dialog"]',
+
+            'img[src*="media.whatsapp"]',
+
+            'img[src*="cdn.whatsapp"]'
 
         ]
 
@@ -243,7 +268,9 @@ class ViewerService:
 
 
                 self.log.success(
+
                     f"Visualizador detectado: {selector}"
+
                 )
 
 
@@ -253,87 +280,29 @@ class ViewerService:
 
             except PlaywrightTimeoutError:
 
+
                 continue
 
 
 
         raise Exception(
-            "Viewer não encontrado."
+            "Visualizador não encontrado."
         )
 
 
 
 
+    # ==========================================================
+    # Captura URL original
+    # ==========================================================
 
-    # ======================================================
-    # Extrair mídia completa
-    # ======================================================
-
-    def extract_media(self):
+    def get_original_media(self):
 
 
         self.log.info(
-            "Capturando blob da mídia..."
+            "Capturando URL original..."
         )
 
-
-
-        blob_url = self.get_blob_url()
-
-
-
-        if not blob_url:
-
-
-            self.log.error(
-                "Blob não encontrado."
-            )
-
-            return None
-
-
-
-
-        self.log.info(
-            f"Blob encontrado: {blob_url}"
-        )
-
-
-
-        data = self.download_blob(
-            blob_url
-        )
-
-
-
-        if not data:
-
-
-            return None
-
-
-
-
-        return {
-
-
-            "type": "image",
-
-            "extension": "jpg",
-
-            "data": data
-
-        }
-
-
-
-
-
-    # ======================================================
-    # Localiza blob
-    # ======================================================
-
-    def get_blob_url(self):
 
 
         images = self.page.locator(
@@ -341,108 +310,280 @@ class ViewerService:
         )
 
 
+
         total = images.count()
 
 
 
-        for i in range(total):
+        self.log.info(
+            f"Imagens encontradas no viewer: {total}"
+        )
 
 
-            src = images.nth(i).get_attribute(
-                "src"
+
+        candidates = []
+
+
+
+        for index in range(total):
+
+
+            try:
+
+
+                src = images.nth(index).get_attribute(
+                    "src"
+                )
+
+
+
+                if not src:
+                    continue
+
+
+
+                self.log.info(
+                    f"URL {index}: {src[:120]}"
+                )
+
+
+
+                if self.is_valid_candidate(src):
+
+
+                    candidates.append(src)
+
+
+
+            except Exception:
+
+
+                continue
+
+
+
+        self.log.info(
+            f"Candidatas válidas: {len(candidates)}"
+        )
+
+
+
+        for index,url in enumerate(candidates):
+
+
+            self.log.info(
+                f"Candidata {index}: {url[:150]}"
             )
 
 
 
-            if src and src.startswith("blob:"):
-
-
-                return src
-
-
-
-        return None
-
-
-
-
-
-    # ======================================================
-    # Converte blob para bytes
-    # ======================================================
-
-    def download_blob(
-        self,
-        blob_url
-    ):
-
-
-        script = """
-
-        async (url)=>{
-
-            const response = await fetch(url);
-
-            const blob = await response.blob();
-
-            const buffer = await blob.arrayBuffer();
-
-            let binary = '';
-
-            const bytes = new Uint8Array(buffer);
-
-
-            for(let i=0;i<bytes.length;i++){
-
-                binary += String.fromCharCode(bytes[i]);
-
-            }
-
-
-            return btoa(binary);
-
-        }
-
-        """
-
-
-
-        try:
-
-
-            result = self.page.evaluate(
-
-                script,
-
-                blob_url
-
-            )
-
-
-
-            return base64.b64decode(
-                result
-            )
-
-
-
-        except Exception as error:
-
-
-            self.log.error(
-                f"Erro ao converter blob: {error}"
-            )
+        if not candidates:
 
 
             return None
 
 
 
+        # Prioridade CDN WhatsApp
 
+        selected = None
+
+
+        for url in candidates:
+
+
+            if "cdn.whatsapp.net" in url:
+
+
+                selected = url
+
+                break
+
+
+
+        if not selected:
+
+
+            selected = candidates[0]
+
+
+
+        self.log.success(
+            "Mídia original selecionada."
+        )
+
+
+
+        return {
+
+
+            "type": self.detect_type(selected),
+
+            "url": selected
+
+        }
+
+
+
+
+    # ==========================================================
+    # Filtro de URL
+    # ==========================================================
+
+    def is_valid_candidate(
+        self,
+        url: str
+    ):
+
+
+        invalid = [
+
+            "blob:",
+
+            "emoji",
+
+            "static.whatsapp",
+
+            "web.whatsapp.com",
+
+            "profile",
+
+            "avatar",
+
+            "data:image"
+
+        ]
+
+
+        for item in invalid:
+
+
+            if item in url:
+
+
+                self.log.info(
+                    f"Ignorando thumbnail: {url[:100]}"
+                )
+
+
+                return False
+
+
+
+        #
+        # somente CDN WhatsApp
+        #
+
+        if "cdn.whatsapp.net" not in url:
+
+
+            return False
+
+
+
+        #
+        # rejeitar thumbnails pequenos
+        #
+
+        thumbnail_sizes = [
+
+            "s16",
+
+            "s32",
+
+            "s40",
+
+            "s48",
+
+            "s64",
+
+            "s96",
+
+            "s128"
+
+        ]
+
+
+
+        for size in thumbnail_sizes:
+
+
+            if f"dst-jpg_{size}" in url:
+
+
+                self.log.info(
+                    f"Ignorando thumbnail {size}: {url[:100]}"
+                )
+
+
+                return False
+
+
+
+        #
+        # aceitar s9, s10, etc
+        # normalmente são imagens grandes
+        #
+
+        return True
+
+
+
+    # ==========================================================
+    # Detectar tipo
+    # ==========================================================
+
+    def detect_type(
+        self,
+        url
+    ):
+
+
+        ext = urlparse(url).path.lower()
+
+
+
+        if ".mp4" in ext:
+
+
+            return "video"
+
+
+
+        if ".jpg" in ext or ".jpeg" in ext or ".png" in ext:
+
+
+            return "image"
+
+
+
+        return "unknown"
+
+
+
+
+    # ==========================================================
+    # Fechar viewer
+    # ==========================================================
 
     def close_viewer(self):
 
 
+        self.log.info(
+            "Fechando visualizador..."
+        )
+
+
         self.page.keyboard.press(
             "Escape"
+        )
+
+
+        self.page.wait_for_timeout(
+            1000
+        )
+
+
+        self.log.success(
+            "Visualizador fechado."
         )
