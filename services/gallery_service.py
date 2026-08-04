@@ -175,12 +175,7 @@ class GalleryService:
 
                         medias[key] = {
 
-
-                            "index": index,
-
-
-                            "locator": thumb
-
+                            "index": index
 
                         }
 

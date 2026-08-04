@@ -54,44 +54,37 @@ class ViewerService:
         media=None
     ):
 
-
         self.log.info(
             "Testando primeira mídia..."
         )
 
-
         result = self.open_media()
 
-
         if result:
-
 
             self.log.success(
                 "Objeto de mídia recebido:"
             )
 
-
             self.log.info(
-                f"Tipo: {result['type']}"
+                f"Mime : {result.get('mime')}"
             )
 
-
             self.log.info(
-                f"URL: {result['url']}"
+                f"Tamanho : {result.get('size'):,} bytes"
             )
 
+            self.log.info(
+                f"URL : {result.get('url')}"
+            )
 
         else:
-
 
             self.log.warning(
                 "Nenhuma mídia encontrada."
             )
 
-
-
         return result
-
 
 
     # ==========================================================
@@ -102,6 +95,14 @@ class ViewerService:
         self,
         media=None
     ):
+
+        #
+        # inicia captura da rede
+        #
+
+        self.browser.network.clear()
+
+        self.browser.network.start_capture()
 
 
         self.log.info(
@@ -156,12 +157,62 @@ class ViewerService:
             self.wait_viewer()
 
 
-            self.log.success(
-                "Mídia aberta no visualizador."
+            #
+            # aguarda a resposta HTTP da mídia
+            #
+
+            self.page.wait_for_timeout(2000)
+
+            self.browser.network.stop_capture()
+
+            media = self.browser.network.get_best_media()
+
+            # media = self.browser.network.get_last_media()
+
+
+            if media:
+
+                #
+                # Define automaticamente o tipo
+                #
+
+                mime = media.get("mime", "").lower()
+
+                if mime.startswith("image"):
+
+                    media["type"] = "image"
+
+                elif mime.startswith("video"):
+
+                    media["type"] = "video"
+
+                else:
+
+                    media["type"] = "unknown"
+
+                self.log.success(
+
+                    f"Mídia capturada via NetworkService ({media['size']:,} bytes)"
+
+                )
+
+                return media
+
+
+
+            self.log.warning(
+                "NetworkService não capturou nenhuma mídia. Utilizando método antigo."
             )
 
-
             return self.get_original_media()
+
+
+            # self.log.success(
+            #     "Mídia aberta no visualizador."
+            # )
+
+
+            # return self.get_original_media()
 
 
 
@@ -174,7 +225,6 @@ class ViewerService:
 
 
             raise error
-
 
 
 
@@ -297,6 +347,10 @@ class ViewerService:
     # ==========================================================
 
     def get_original_media(self):
+
+        self.log.warning(
+            "Usando método legado (DOM)."
+        )
 
 
         self.log.info(

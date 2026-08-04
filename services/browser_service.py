@@ -16,7 +16,7 @@ from playwright.sync_api import (
 from config import settings
 from constants.app_constants import AppConstants
 from services.logger_service import LoggerService
-
+from services.network_service import NetworkService
 
 class BrowserService:
     """
@@ -32,6 +32,10 @@ class BrowserService:
         self._context: BrowserContext | None = None
 
         self._page: Page | None = None
+
+        self.network = NetworkService()
+
+
 
     # ==========================================================
     # Properties
@@ -87,6 +91,12 @@ class BrowserService:
         else:
 
             self._page = self._context.new_page()
+
+        #
+        # Agora a página existe
+        #
+
+        self.network.register(self._page)
 
         self._page.set_default_timeout(
 
