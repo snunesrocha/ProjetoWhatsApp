@@ -192,89 +192,39 @@ class DatabaseService:
     # ---------------------------------------------------------
 
     def insert_media(
-
         self,
-
         media_type: str,
-
         file_name: str,
-
         original_name: str,
-
         extension: str,
-
         conversation: str,
-
-        sha256: str,
-
+        sha256: str,          # tipo forte (str)
         local_path: str,
-
         file_size: int,
-
         downloaded: int = 1
-
     ) -> None:
 
+        if not sha256:
+            raise ValueError(
+                "SHA256 não pode ser nulo ou vazio. "
+                "Repita a execução ou corrija o fluxo."
+            )
+
         self.execute(
-
             """
-
             INSERT INTO media (
-
-                media_type,
-
-                file_name,
-
-                original_name,
-
-                extension,
-
-                conversation,
-
-                sha256,
-
-                local_path,
-
-                file_size,
-
-                downloaded,
-
-                download_date
-
+                media_type, file_name, original_name, extension,
+                conversation, sha256, local_path, file_size,
+                downloaded, download_date
             )
-
-            VALUES (
-
-                ?,?,?,?,?,?,?,?,?,datetime('now')
-
-            )
-
+            VALUES (?,?,?,?,?,?,?,?,?,datetime('now'))
             """,
-
             (
-
-                media_type,
-
-                file_name,
-
-                original_name,
-
-                extension,
-
-                conversation,
-
-                sha256,
-
-                local_path,
-
-                file_size,
-
+                media_type, file_name, original_name, extension,
+                conversation, sha256, local_path, file_size,
                 downloaded,
-
-            )
-
+            ),
         )
-
     # ---------------------------------------------------------
     # Estatísticas
     # ---------------------------------------------------------
