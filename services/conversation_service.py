@@ -83,7 +83,6 @@ class ConversationService:
         self.open_info_panel()
 
 
-        self.open_media_tab()
 
 
         self.log.success(
@@ -252,78 +251,78 @@ class ConversationService:
 
 
 
-    # ==========================================================
-    # Abrir aba Mídia
-    # ==========================================================
+    # # ==========================================================
+    # # Abrir aba Mídia
+    # # ==========================================================
 
-    def open_media_tab(
-        self
-    ):
-
-
-        self.log.info(
-            "Abrindo aba Mídia..."
-        )
+    # def open_media_tab(
+    #     self
+    # ):
 
 
-
-        try:
-
-
-            media_button = self.page.get_by_test_id(
-                WhatsAppSelectors.MEDIA_LINKS_DOCS
-            )
-
-
-            media_button.wait_for(
-                state="visible",
-                timeout=10000
-            )
-
-
-            media_button.click()
+    #     self.log.info(
+    #         "Abrindo aba Mídia..."
+    #     )
 
 
 
-            self.page.wait_for_timeout(
-                2000
-            )
+    #     try:
+
+
+    #         media_button = self.page.get_by_test_id(
+    #             WhatsAppSelectors.MEDIA_LINKS_DOCS
+    #         )
+
+
+    #         media_button.wait_for(
+    #             state="visible",
+    #             timeout=10000
+    #         )
+
+
+    #         media_button.click()
 
 
 
-            gallery_tab = self.page.get_by_test_id(
-                WhatsAppSelectors.GALLERY_TAB_MEDIA
-            )
-
-
-            gallery_tab.wait_for(
-                state="visible",
-                timeout=10000
-            )
-
-
-            gallery_tab.click()
+    #         self.page.wait_for_timeout(
+    #             2000
+    #         )
 
 
 
-            self.page.wait_for_timeout(
-                3000
-            )
+    #         gallery_tab = self.page.get_by_test_id(
+    #             WhatsAppSelectors.GALLERY_TAB_MEDIA
+    #         )
+
+
+    #         gallery_tab.wait_for(
+    #             state="visible",
+    #             timeout=10000
+    #         )
+
+
+    #         gallery_tab.click()
 
 
 
-            self.log.success(
-                "Aba Mídia aberta."
-            )
+    #         self.page.wait_for_timeout(
+    #             3000
+    #         )
 
 
 
-        except PlaywrightTimeoutError:
+    #         self.log.success(
+    #             "Aba Mídia aberta."
+    #         )
 
 
-            self.log.error(
-                "Não foi possível abrir aba Mídia."
-            )
+
+    #     except PlaywrightTimeoutError:
 
 
-            raise
+    #         self.log.error(
+    #             "Não foi possível abrir aba Mídia."
+    #         )
+
+
+    #         raise

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from services.browser_service import BrowserService
 from services.logger_service import LoggerService
+from constants.whatsapp_selectors import WhatsAppSelectors
 
 
 class GalleryService:
@@ -49,6 +50,8 @@ class GalleryService:
             "Iniciando leitura da galeria..."
         )
 
+        self.open_media_tab()
+
 
         self.find_gallery()
 
@@ -63,6 +66,82 @@ class GalleryService:
 
         return medias
 
+
+    # ==========================================================
+    # Abrir aba Mídia
+    # ==========================================================
+
+    def open_media_tab(
+        self
+    ):
+
+
+        self.log.info(
+            "Abrindo aba Mídia..."
+        )
+
+
+
+        try:
+
+
+            media_button = self.page.get_by_test_id(
+                WhatsAppSelectors.MEDIA_LINKS_DOCS
+            )
+
+
+            media_button.wait_for(
+                state="visible",
+                timeout=10000
+            )
+
+
+            media_button.click()
+
+
+
+            self.page.wait_for_timeout(
+                2000
+            )
+
+
+
+            gallery_tab = self.page.get_by_test_id(
+                WhatsAppSelectors.GALLERY_TAB_MEDIA
+            )
+
+
+            gallery_tab.wait_for(
+                state="visible",
+                timeout=10000
+            )
+
+
+            gallery_tab.click()
+
+
+
+            self.page.wait_for_timeout(
+                3000
+            )
+
+
+
+            self.log.success(
+                "Aba Mídia aberta."
+            )
+
+
+
+        except PlaywrightTimeoutError:
+
+
+            self.log.error(
+                "Não foi possível abrir aba Mídia."
+            )
+
+
+            raise
 
 
     # ======================================================
@@ -101,8 +180,11 @@ class GalleryService:
 
                 thumbs:
                 e.querySelectorAll(
-                    '[data-testid="image-thumb"]'
-                ).length
+                    '[data-testid="media-canvas"]'
+                ).length,
+
+                children:
+                e.children.length
 
             })
             """
@@ -113,6 +195,77 @@ class GalleryService:
             f"Estado inicial galeria: {info}"
         )
 
+        diagnostic = self.container.evaluate(
+        """
+        e => {
+
+            const elements = [...e.querySelectorAll("*")];
+
+            return {
+
+                totalElements: elements.length,
+
+                testids:
+                    [...new Set(
+                        elements
+                        .map(x => x.getAttribute("data-testid"))
+                        .filter(Boolean)
+                    )],
+
+                images:
+                    e.querySelectorAll("img").length,
+
+                videos:
+                    e.querySelectorAll("video").length,
+
+                classes:
+                    [...new Set(
+                        elements
+                        .map(x => x.className)
+                        .filter(x => typeof x === "string")
+                    )].slice(0,20)
+
+            }
+
+        }
+        """
+        )
+
+        self.log.info(
+            f"Diagnóstico DOM galeria: {diagnostic}"
+        )
+
+        canvas_info = self.container.evaluate(
+        """
+        e => ({
+
+            canvas:
+                e.querySelectorAll(
+                    '[data-testid="media-canvas"]'
+                ).length,
+
+            canvasImg:
+                e.querySelectorAll(
+                    '[data-testid="media-canvas-img"]'
+                ).length,
+
+            urlProvider:
+                e.querySelectorAll(
+                    '[data-testid="media-url-provider"]'
+                ).length,
+
+            firstCanvas:
+                e.querySelector(
+                    '[data-testid="media-canvas"]'
+                )?.outerHTML.substring(0,1000)
+
+        })
+        """
+        )
+
+        self.log.info(
+            f"Canvas diagnóstico: {canvas_info}"
+        )
 
 
     # ======================================================
@@ -140,16 +293,16 @@ class GalleryService:
         while True:
 
 
-            thumbs = self.page.get_by_test_id(
-                "image-thumb"
-            )
+            thumbs = self.container.get_by_test_id(
+                            "media-canvas"
+                        )
 
 
             count = thumbs.count()
 
 
             self.log.info(
-                f"Cards de mídia encontrados: {count}"
+                f"Cards de mídia encontrados na galeria: {count}"
             )
 
 
@@ -165,17 +318,29 @@ class GalleryService:
                     )
 
 
-                    key = (
-                        f"media_{index}"
+                    aria_label = thumb.get_attribute(
+                        "aria-label"
                     )
 
+
+                    # key = (
+                    #     aria_label
+                    #     if aria_label
+                    #     else f"media_{index}"
+                    # )
+
+                    key = f"{aria_label}|{index}"
 
                     if key not in medias:
 
 
                         medias[key] = {
 
-                            "index": index
+                            "index": index,
+
+                            "locator": thumb,
+
+                            "label": aria_label
 
                         }
 
@@ -183,8 +348,6 @@ class GalleryService:
                         self.log.debug(
                             f"Mídia adicionada: {key}"
                         )
-
-
 
                 except Exception as error:
 
@@ -332,9 +495,11 @@ class GalleryService:
                 )
 
 
-            except Exception:
+            except Exception as error:
 
-                pass
+                self.log.debug(
+                    f"Erro exibindo primeiro card: {error}"
+                )
 
 
 
